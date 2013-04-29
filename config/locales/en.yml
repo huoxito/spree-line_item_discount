@@ -1,0 +1,4 @@
+en:
+  promotion_action_types:
+    adjust:
+      name: "Create line item discount"
