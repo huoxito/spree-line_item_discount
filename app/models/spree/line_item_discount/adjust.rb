@@ -3,7 +3,7 @@ module Spree
     class Adjust < PromotionAction
       include Core::CalculatedAdjustments
 
-      attr_reader :order, :line_items, :adjustable, :source
+      attr_reader :order, :line_items, :adjustable
 
       has_many :adjustments, :as => :originator
 
@@ -22,9 +22,9 @@ module Spree
         end
       end
 
-      def eligible?(adjustable, source = nil)
-        @adjustable, @source = adjustable, source
-        self.promotion.eligible?(source) && best_than_concurrent_discounts?
+      def eligible?(adjustable)
+        @adjustable, @order = adjustable, adjustable.order
+        self.promotion.eligible?(order) && best_than_concurrent_discounts?
       end
 
       def compute_amount(adjustable)
@@ -47,7 +47,7 @@ module Spree
             return false
           end
 
-          current_discount <= best_concurrent_amount
+          current_discount <= best_concurrent_amount || !best_concurrent_discount.eligible
         end
 
         def current_adjustment
