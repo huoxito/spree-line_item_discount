@@ -2,3 +2,4 @@ en:
   promotion_action_types:
     adjust:
       name: "Create line item discount"
+      description: "Creates an adjustment as per item on the order"
