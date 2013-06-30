@@ -85,7 +85,7 @@ module Spree
 
         def deals_with_adjustments
           self.adjustments.each do |adjustment|
-            if adjustment.adjustable.complete?
+            if adjustment.source.complete?
               adjustment.originator = nil
               adjustment.save
             else

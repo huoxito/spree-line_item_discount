@@ -24,6 +24,11 @@ module Spree
           line_item.adjustments.should == action.adjustments
         end
 
+        it "creates adjustment with order as source" do
+          action.perform(:order => order, :items => [line_item])
+          expect(line_item.adjustments.first.source).to eq order
+        end
+
         it "does not perform twice on the same item" do
           2.times { action.perform(:order => order, :items => [line_item]) }
           action.adjustments.count.should == 1
