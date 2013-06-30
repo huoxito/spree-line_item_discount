@@ -9,8 +9,12 @@ module Spree
 
       before_validation :ensure_action_has_calculator
 
+      # decide whether adjustment should be deleted or not
       before_destroy :deals_with_adjustments
 
+      # TODO Since the action will be perfomed on the line item creation
+      # it no longer needs to receive a items collection neither it needs
+      # to receive a hash. Instead we can just pass the line_item object
       def perform(options = {})
         @order, @line_items = options[:order], options[:items] || []
 
@@ -22,11 +26,15 @@ module Spree
         end
       end
 
+      # Receives an adjustable object (here a LineItem)
       def eligible?(adjustable)
         @adjustable, @order = adjustable, adjustable.order
         self.promotion.eligible?(order) && best_than_concurrent_discounts?
       end
 
+      # Receives an adjustable object (here a LineItem)
+      #
+      # Returns total discount for the adjustable
       def compute_amount(adjustable)
         amount = self.calculator.compute(adjustable).to_f.abs
         [adjustable.total, amount].min * -1
