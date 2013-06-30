@@ -12,17 +12,28 @@ module Spree
       # decide whether adjustment should be deleted or not
       before_destroy :deals_with_adjustments
 
-      # TODO Since the action will be perfomed on the line item creation
-      # it no longer needs to receive a items collection neither it needs
-      # to receive a hash. Instead we can just pass the line_item object
-      def perform(options = {})
-        @order, @line_items = options[:order], options[:items] || []
+      # Create the adjustment and set its eligibility
+      #
+      # At the time it runs the order may not be eligible for this specific
+      # promotion so the adjustment should not compute on order total
+      #
+      # It needs to create the adjustment here anyway because the action only
+      # performs when the line item is created. After that the adjustment amount
+      # will compute on order total depending on what +eligible?+ returns as
+      # the order changes
+      #
+      # FIXME Say we have 10 LineItemDiscount promos. An order with 5 items
+      # should have at least 50 adjustments. That might still make order
+      # changes really slow as it will run +eligible?+ on 50 adjustments.
+      # Instead we could group the data somehow that we only run eligible? once
+      # on each promotion on each order change
+      def perform(line_item)
+        @order, @line_items = line_item.order, line_item
 
-        line_items.each do |item|
-          unless has_applied?(item)
-            amount = self.compute_amount(item)
-            create_adjustment(amount: amount, adjustable: item, source: order)
-          end
+        unless has_applied?(line_item)
+          amount = self.compute_amount(line_item)
+          adjustment = create_adjustment(amount: amount, adjustable: line_item, source: order)
+          adjustment.set_eligibility
         end
       end
 

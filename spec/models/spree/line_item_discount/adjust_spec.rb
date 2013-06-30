@@ -11,26 +11,29 @@ module Spree
       before { action.stub(:promotion => promotion) }
 
       context "#perform" do
+        let(:adjustment) { double("Adjustment") }
+
         before { promotion.promotion_actions = [action] }
 
         it "computes amount before creating adjustment" do
-          action.should_receive(:compute_amount).ordered
-          action.should_receive(:create_adjustment).ordered
-          action.perform(:order => order, :items => [line_item])
+          action.should_receive(:compute_amount).with(line_item).ordered
+          action.should_receive(:create_adjustment).ordered.and_return(adjustment)
+          adjustment.should_receive(:set_eligibility)
+          action.perform(line_item)
         end
 
         it "creates adjustment with item as adjustable" do
-          action.perform(:order => order, :items => [line_item])
+          action.perform(line_item)
           line_item.adjustments.should == action.adjustments
         end
 
         it "creates adjustment with order as source" do
-          action.perform(:order => order, :items => [line_item])
+          action.perform(line_item)
           expect(line_item.adjustments.first.source).to eq order
         end
 
         it "does not perform twice on the same item" do
-          2.times { action.perform(:order => order, :items => [line_item]) }
+          2.times { action.perform(line_item) }
           action.adjustments.count.should == 1
         end
       end

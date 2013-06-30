@@ -11,7 +11,7 @@ module Spree
     private
       def perform_promo_discounts
         LineItemDiscount::Adjust.all.each do |adjust_discount|
-          adjust_discount.perform(order: order, items: [self])
+          adjust_discount.perform(self)
         end
       end
   end
