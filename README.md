@@ -1,7 +1,4 @@
-# SpreeLineItemDiscounts
-
-Trying to get an idea on what the extension should do and how it should do it
------------------------------------------------------------------------------
+# Spree Line Item Discounts
 
 * Apply promo adjustments at the LineItem level on a Spree ~> 2.0 install
 
@@ -21,13 +18,18 @@ Trying to get an idea on what the extension should do and how it should do it
 
 ## Installation
 
-Add to your Gemfile
+Add to your Gemfile, bundle install and you should be ready to go.
 
 ```ruby
 gem 'spree-line_item_discount', github: 'huoxito/spree-line_item_discount'
 ```
 
 ## Usage
+
+1. Create a Promotion but do not choose any event name for the promotion.
+2. Set up promotion rules as you please
+3. Add a _Create line item discount_ action to the promotion
+4. Set up the percent as you please (currently has only one Calculator)
 
 ## Contributing
 
