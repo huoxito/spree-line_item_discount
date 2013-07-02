@@ -15,6 +15,23 @@ module Spree
       order.total = order.item_total + order.adjustment_total
     end
 
+    # Overriden from Spree core
+    #
+    # Updates each of the Order adjustments.
+    #
+    # This is intended to be called from an Observer so that the Order can
+    # respond to external changes to LineItem, Shipment, other Adjustments, etc.
+    #
+    # Adjustments will check if they are still eligible. Ineligible adjustments
+    # are preserved but not counted towards adjustment_total.
+    #
+    # As of LineItemDiscount it updates adjustments value and eligibility
+    def update_adjustments
+      order.adjustments.reload.each { |adjustment| adjustment.update! }
+      choose_best_promotion_adjustment
+      LineItemDiscount::PromotionPool.new(order).adjust!
+    end
+
     def items_adjustments_total
       line_item_adjustments.map(&:amount).sum
     end
