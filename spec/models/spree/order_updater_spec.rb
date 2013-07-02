@@ -16,11 +16,22 @@ module Spree
     end
 
     context "eligible promo" do
-      context "populate order with new variant" do
-        before { order.contents.add(variant, 1) }
+      before { order.contents.add(variant, 1) }
 
-        it "applies existing line item discounts" do
-          expect(order.total.to_f).to_not eql variant.price.to_f
+      it "applies existing line item discounts" do
+        expect(order.total.to_f).to_not eql variant.price.to_f
+      end
+
+      context "not eligible anymore" do
+        let(:rule) { Promotion::Rules::ItemTotal.create(preferred_amount: 3000, preferred_operator: "gt") }
+
+        before do
+          promotion.rules << rule
+          order.contents.add(variant, 1)
+        end
+
+        it "no longer apply line item adjustment" do
+          expect(order.total.to_f).to eql (variant.price * 2).to_f
         end
       end
     end
@@ -39,7 +50,7 @@ module Spree
         expect(order.total.to_f).to eql variant.price.to_f
       end
 
-      context "promo becomes eligible" do
+      context "but becomes eligible later on" do
         before do
           order.contents.add(variant, 8)
         end

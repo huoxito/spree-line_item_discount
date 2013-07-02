@@ -27,7 +27,7 @@ module Spree
         it { expect(subject.eligible).to be_empty }
 
         it "doesn't return adjustments from that promo" do
-          expect(subject.adjustments.map(&:originator)).to eq []
+          expect(subject.valid_discounts.map(&:originator)).to eq []
         end
 
         context "promo becomes eligible" do
@@ -37,7 +37,7 @@ module Spree
 
           it "adjust existing adjustments values" do
             subject.adjust!
-            expect(subject.adjustments.map(&:amount)).to_not eq [previous_adjustment.amount]
+            expect(subject.valid_discounts.map(&:amount)).to_not eq [previous_adjustment.amount]
           end
         end
       end
@@ -50,7 +50,7 @@ module Spree
         end
 
         it "returns adjustments from that promo" do
-          expect(subject.adjustments.map(&:originator)).to eq [action]
+          expect(subject.valid_discounts.map(&:originator)).to eq [action]
         end
       end
     end

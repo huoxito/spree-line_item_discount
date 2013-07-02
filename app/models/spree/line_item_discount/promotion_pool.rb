@@ -18,7 +18,7 @@ module Spree
 
       def initialize(order)
         @order = order
-        @actions = Adjust.includes(:promotion)
+        @actions = Adjust.includes(:promotion).all
       end
 
       # Returns array of all eligible actions for the current order
@@ -27,23 +27,35 @@ module Spree
       end
 
       # Returns array of all line item adjustments eligible for current order
-      def adjustments
-        Adjustment.promotion.source_order.includes(:originator)
-          .where(originator_id: eligible.map(&:id), source_id: order.id)
+      def valid_discounts
+        adjustments(eligible.map(&:id))
       end
 
-      # Updates adjustment values and make sure they're all eligible
+      def invalid_discounts
+        adjustments(not_eligible.map(&:id))
+      end
+
+      def not_eligible
+        actions.select { |action| !action.promotion.eligible? order }
+      end
+
+      # Update adjustment amounts for eligible actions
       #
       # Use +update_adjustment+ as it will not run any callbacks making
       def adjust!
-        adjustments.each do |adjustment|
+        valid_discounts.each do |adjustment|
           adjustment.originator.update_adjustment(adjustment, adjustment.adjustable)
-
-          unless adjustment.eligible
-            adjustment.update_attribute_without_callbacks(:eligible, true)
-          end
         end
+
+        valid_discounts.update_all(eligible: true)
+        invalid_discounts.update_all(eligible: false)
       end
+
+      private
+        def adjustments(originator_ids)
+          Adjustment.promotion.source_order.includes(:originator)
+            .where(originator_id: originator_ids, source_id: order.id)
+        end
     end
   end
 end
