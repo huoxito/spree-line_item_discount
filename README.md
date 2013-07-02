@@ -1,15 +1,23 @@
 # SpreeLineItemDiscounts
 
-## trying to get an idea on what the extension should do and how it should do it
+Trying to get an idea on what the extension should do and how it should do it
+-----------------------------------------------------------------------------
 
 * Apply promo adjustments at the LineItem level on a Spree ~> 2.0 install
+
 * Item Discount promos don't require `event_name` they should be set to nil
+
+* Item Discount promos should only have one single action
+
 * Adjustments should be inserted at the line item creation before the order
   receive `update!`. Hopefully that will give room to make order changes way more
   perfomant
+
 * The same promo may apply adjustments to multiple line items on the order
+
 * Multiple adjustments from different promos may be applied to the same line item
-* The same adjustments cannot apply twice on the same item
+
+* The same adjustment cannot apply twice on the same item
 
 ## Installation
 

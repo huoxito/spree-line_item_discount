@@ -1,5 +1,7 @@
 module Spree
   OrderUpdater.class_eval do
+    # Overriden from Spree core
+    #
     # Updates the following Order total values:
     #
     # +payment_total+      The total value of all finalized Payments (NOTE: non-finalized Payments are excluded)

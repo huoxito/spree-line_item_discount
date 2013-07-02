@@ -1,5 +1,7 @@
 module Spree
   Adjustment.class_eval do
+    scope :source_order, -> { where(source_type: "Spree::Order") }
+
     # Overriden from Spree core
     #
     # Allow originator of the adjustment to perform an additional eligibility of the adjustment
