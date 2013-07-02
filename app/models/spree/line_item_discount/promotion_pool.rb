@@ -8,6 +8,12 @@ module Spree
     # to compute values for adjustments that are not eligible. As the extension
     # allows multiple adjustments for the same line item.
     #
+    # e.g.
+    # Say we have 10 LineItemDiscount promos. An order with 5 items may have
+    # 50 adjustments. That would make order changes really slow as it will run
+    # +eligible?+ on 50 adjustments. Instead we group the data so that it
+    # only runs eligible? once on each promotion on each order change
+    #
     # ps. watch out for scenarios where the promo eligibilty changes as adjustments
     # are applied to the order total. Hopefully such cases don't exist and if
     # they do we might just consider that adjustments or any probably other

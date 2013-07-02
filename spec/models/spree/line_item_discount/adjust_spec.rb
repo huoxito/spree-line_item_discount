@@ -11,14 +11,11 @@ module Spree
       before { action.stub(:promotion => promotion) }
 
       context "#perform" do
-        let(:adjustment) { double("Adjustment") }
-
         before { promotion.promotion_actions = [action] }
 
         it "computes amount before creating adjustment" do
           action.should_receive(:compute_amount).with(line_item).ordered
-          action.should_receive(:create_adjustment).ordered.and_return(adjustment)
-          adjustment.should_receive(:set_eligibility)
+          action.should_receive(:create_adjustment).ordered
           action.perform(line_item)
         end
 
