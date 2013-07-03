@@ -1,10 +1,8 @@
 module Spree
   TaxRate.class_eval do
     def self.adjust(order)
-      order.adjustments.tax.each(&:destroy)
-      order.line_items.each do |item|
-        item.adjustments.tax.each(&:destroy)
-      end
+      order.adjustments.tax.destroy_all
+      order.line_item_adjustments.where(originator_type: 'Spree::TaxRate').destroy_all
 
       self.match(order).each do |rate|
         rate.adjust(order)
