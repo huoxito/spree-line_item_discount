@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'spree', github: 'spree/spree'
+gem 'spree', '~> 2.0.4'
 
 group :test do
   gem 'ffaker'
