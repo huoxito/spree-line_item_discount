@@ -1,6 +1,7 @@
 module Spree
   OrderUpdater.class_eval do
     # Overriden from Spree core
+    # So that it sums line_items_adjustments total to order.adjustment_total
     #
     # Updates the following Order total values:
     #
@@ -16,6 +17,7 @@ module Spree
     end
 
     # Overriden from Spree core
+    # As of LineItemDiscount it updates adjustments value and eligibility
     #
     # Updates each of the Order adjustments.
     #
@@ -24,22 +26,15 @@ module Spree
     #
     # Adjustments will check if they are still eligible. Ineligible adjustments
     # are preserved but not counted towards adjustment_total.
-    #
-    # As of LineItemDiscount it updates adjustments value and eligibility
     def update_adjustments
       order.adjustments.reload.each { |adjustment| adjustment.update! }
       choose_best_promotion_adjustment
       LineItemDiscount::PromotionPool.new(order).adjust!
     end
 
-    def items_adjustments_total
-      line_item_adjustments.map(&:amount).sum
-    end
-
-    def line_item_adjustments
-      line_items.inject([]) do |discounts, line_item|
-        discounts.concat line_item.adjustments.eligible
+    private
+      def items_adjustments_total
+        order.line_item_adjustments.eligible.sum(&:amount)
       end
-    end
   end
 end
