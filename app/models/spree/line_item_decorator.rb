@@ -6,12 +6,14 @@ module Spree
     # +update!+ just yet. If it complied with the usual Spree AS::Notifications
     # events promo triggers we would have to run +update!+ on the order for each
     # promo which is not perfomant at all
-    after_create :perform_promo_discounts
+    after_create :activate_discounts
 
     private
-      def perform_promo_discounts
-        LineItemDiscount::Adjust.all.each do |adjust_discount|
-          adjust_discount.perform(self)
+      def activate_discounts
+        unless order.completed?
+          LineItemDiscount::Adjust.all.each do |adjust_discount|
+            adjust_discount.perform(self)
+          end
         end
       end
   end
